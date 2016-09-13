@@ -1,0 +1,22 @@
+{
+    "first": [
+        "foo",
+        "bar"
+    ],
+    "always": [
+        "foo",
+        "bar"
+    ],
+    "sometimes": [
+        "foo",
+        "bar"
+    ],
+    "last": [
+        "foo",
+        "bar"
+    ],
+    "never": [
+        "foo",
+        "bar"
+    ]
+}
