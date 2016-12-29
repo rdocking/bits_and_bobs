@@ -71,14 +71,14 @@ bibliography: ../../references/paperpile_export.bib
 
 | Category                       | Estimate | Daily | Actual | Diff |
 |:-------------------------------|:---------|:------|:-------|:-----|
-| Meta                           |          |       |        |      |
-| Current Analysis               |          |       |        |      |
-| Current Reading                |          |       |        |      |
-| Background Reading             |          |       |        |      |
-| Meetings and Seminars          |          |       |        |      |
-| Informatics Support            |          |       |        |      |
-| Scanning, Networking, Browsing |          |       |        |      |
-| **SUM**                        |          |       |        |      |
+| Meta                           | {meta} | {meta_daily} |    |      |
+| Current Analysis               | {analysis} | {analysis_daily} | | |
+| Current Reading                | {reading} | {reading_daily} | | |
+| Background Reading             | {background} | {background_daily} | | |
+| Meetings and Seminars          | {meetings} | {meetings_daily} | | |
+| Informatics Support            | {support} | {support_daily} | | |
+| Scanning, Networking, Browsing | {scan} | {scan_daily} | | |
+| **SUM**                        | {sum_intervals} | {sum_daily} | | |
 
 ## Schedule
 
@@ -153,10 +153,10 @@ def _parse_args():
         '-n', '--num_days', type=int,
         help='Number of days in the sprint', required=True)
     parser.add_argument(
-        '-1', '--week1_committed', type=int,
+        '-1', '--week1_committed', type=float,
         help='Number of hours booked in week 1', required=True)
     parser.add_argument(
-        '-2', '--week2_committed', type=int,
+        '-2', '--week2_committed', type=float,
         help='Number of hours booked in week 2', required=True)
     args = parser.parse_args()
     return args
@@ -193,11 +193,34 @@ def main():
     # Grab values from last sprint for productive hours and points
     productive_hours_actual, story_points_actual = fetch_prior_values(args)
     # Set up estimates for hours and intervals
+    # These first estimates are the hard commitments - numbers of days
+    #  and hours already booked
     sprint_hours = args.num_days * 8
     w1_committed = args.week1_committed
     w2_committed = args.week2_committed
     interval_total = args.num_days * 16
     sprint_committed_hours = sprint_hours - w1_committed - w2_committed
+    # For the interval estimates, start with the categories that are known in
+    #  advance
+    meta = 100.0
+    meta_daily = meta / args.num_days
+    analysis = 100.0
+    analysis_daily = analysis / args.num_days
+    reading = 100.0
+    reading_daily = reading / args.num_days
+    background = 100.0
+    background_daily = background / args.num_days
+    meetings = 100.0
+    meetings_daily = meetings / args.num_days
+    support = 100.0
+    support_daily = support / args.num_days
+    scan = 100.0
+    scan_daily = scan / args.num_days
+    sum_intervals = (meta + analysis + reading + background +
+                     meetings + support + scan)
+    sum_daily = (meta_daily + analysis_daily + reading_daily +
+                 background_daily + meetings_daily +
+                 support_daily + scan_daily)
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
@@ -220,7 +243,23 @@ def main():
             w2_committed=w2_committed,
             sprint_committed_hours=sprint_committed_hours,
             num_days=args.num_days,
-            interval_total=interval_total
+            interval_total=interval_total,
+            meta=meta,
+            meta_daily=meta_daily,
+            analysis=analysis,
+            analysis_daily=analysis_daily,
+            reading=reading,
+            reading_daily=reading_daily,
+            background=background,
+            background_daily=background_daily,
+            meetings=meetings,
+            meetings_daily=meetings_daily,
+            support=support,
+            support_daily=support_daily,
+            scan=scan,
+            scan_daily=scan_daily,
+            sum_intervals=sum_intervals,
+            sum_daily=sum_daily
             )
         sprint_handle.write(sprint_text)
 
