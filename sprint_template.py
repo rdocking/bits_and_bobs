@@ -11,11 +11,14 @@ All rights reserved.
 import sys
 import os
 import argparse
+from dateutil.parser import parse
+from dateutil.relativedelta import *
+
 
 SPRINT_TEMPLATE = """---
-title: "Sprint $NUM: Witty Subtitle"
+title: "Sprint {sprint_num}: {sprint_title}"
 author: "Rod Docking"
-date: 'YYYY-MM-DD'
+date: '{start_date}'
 csl: ../../references/csl/apa.csl
 bibliography: ../../references/paperpile_export.bib
 ---
@@ -136,6 +139,9 @@ def _parse_args():
         '-s', '--sprint_num', type=int,
         help='Sprint number', required=True)
     parser.add_argument(
+        '-d', '--start_date', type=str,
+        help='Sprint start date', required=True)
+    parser.add_argument(
         'sprint_title', help='Sprint title')
     args = parser.parse_args()
     return args
@@ -143,8 +149,26 @@ def _parse_args():
 
 def main():
     """Main function"""
+    # Parse command-line arguments
     args = _parse_args()
-    print SPRINT_TEMPLATE
+    # Calculate sprint end dates
+    # Use the dateutil package to calculate 'next Friday'
+    start_datetime = parse(args.start_date)
+    end_datetime = start_datetime + relativedelta(weekday=FR(+2))
+    # Set up the sprint file name
+    sprint_file_name = 'sprint_{num}_{start_date}-{end_date}.rmd'.format(
+        num=args.sprint_num,
+        start_date=start_datetime.date(),
+        end_date=end_datetime.date()
+    )
+    # Write out the template with new values filled in
+    with open(sprint_file_name, 'w') as sprint_handle:
+        sprint_text = SPRINT_TEMPLATE.format(
+            sprint_num=args.sprint_num,
+            sprint_title=args.sprint_title,
+            start_date=args.start_date
+            )
+        sprint_handle.write(sprint_text)
 
 
 if __name__ == '__main__':
