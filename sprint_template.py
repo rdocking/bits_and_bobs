@@ -158,6 +158,33 @@ def _parse_args():
     parser.add_argument(
         '-2', '--week2_committed', type=float,
         help='Number of hours booked in week 2', required=True)
+    parser.add_argument(
+        '-m', '--meta', type=float,
+        help='Number of Meta intervals for the sprint', required=True)
+    parser.add_argument(
+        '-c', '--current_analysis', type=float,
+        help='Number of Current Analysis intervals for the sprint',
+        required=True)
+    parser.add_argument(
+        '-r', '--current_reading', type=float,
+        help='Number of Current Reading intervals for the sprint',
+        required=True)
+    parser.add_argument(
+        '-b', '--background_reading', type=float,
+        help='Number of Background Reading intervals for the sprint',
+        required=True)
+    parser.add_argument(
+        '-i', '--meetings', type=float,
+        help='Number of Meetings intervals for the sprint',
+        required=True)
+    parser.add_argument(
+        '-u', '--support', type=float,
+        help='Number of Support intervals for the sprint',
+        required=True)
+    parser.add_argument(
+        '-a', '--scan', type=float,
+        help='Number of Scan intervals for the sprint',
+        required=True)
     args = parser.parse_args()
     return args
 
@@ -202,25 +229,28 @@ def main():
     sprint_committed_hours = sprint_hours - w1_committed - w2_committed
     # For the interval estimates, start with the categories that are known in
     #  advance
-    meta = 100.0
+    meta = args.meta
     meta_daily = meta / args.num_days
-    analysis = 100.0
+    analysis = args.current_analysis
     analysis_daily = analysis / args.num_days
-    reading = 100.0
+    reading = args.current_reading
     reading_daily = reading / args.num_days
-    background = 100.0
+    background = args.background_reading
     background_daily = background / args.num_days
-    meetings = 100.0
+    meetings = args.meetings
     meetings_daily = meetings / args.num_days
-    support = 100.0
+    support = args.support
     support_daily = support / args.num_days
-    scan = 100.0
+    scan = args.scan
     scan_daily = scan / args.num_days
     sum_intervals = (meta + analysis + reading + background +
                      meetings + support + scan)
     sum_daily = (meta_daily + analysis_daily + reading_daily +
                  background_daily + meetings_daily +
                  support_daily + scan_daily)
+    # Sanity-check against the expected intervals total
+    if sum_intervals != interval_total:
+        print "Interval data mismatch! Check the sums and try again!"
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
