@@ -320,7 +320,7 @@ def main():
         "Informatics Support": support_daily,
         "Scanning, Networking, Browsing": scan_daily
     }
-    with open(args.intervals_data, 'a') as intervals_handle:
+    with open(args.intervals_data, 'w') as intervals_handle:
         for day in sprint_days:
             for category in ordered_intervals:
                 intervals_handle.write('{day},"{category}",{est},0\n'.format(
