@@ -51,19 +51,23 @@ bibliography: ../../references/paperpile_export.bib
 
 ### Story Points and Intervals
 
-- Estimates:
-    - Week 1: {w1_committed}h committed
-    - Week 2: {w2_committed}h committed
-    - Estimate of meeting-free hours: {sprint_hours} - ({w1_committed} + {w2_committed}) = {sprint_committed_hours}h
-    - Estimated potential points from `sprint_estimation_tables.rmd`
+#### Estimates
+
+- Week 1: {w1_committed}h committed
+- Week 2: {w2_committed}h committed
+- Estimate of meeting-free hours: {sprint_hours} - ({w1_committed} + {w2_committed}) = {sprint_committed_hours}h
+- Estimated potential points from `sprint_estimation_tables.rmd`
 - Story points assigned at sprint planning meeting:
-- Actual:
-    - Week 1: $Xh committed
-    - Week 2: $Yh committed
-    - Actual meeting-free hours: 80 - ($X + $Y) = $Zh
+- Intervals Goal: (16 * number of working days) = 16 * {num_days} = {interval_total}
+
+#### Actual
+
+- Week 1: $Xh committed
+- Week 2: $Yh committed
+- Actual meeting-free hours: {sprint_hours} - ($X + $Y) = $Zh
 - Story points completed:
-- Intervals Goal: (16 * number of working days)
-- Interval Targets:
+
+#### Intervals
 
 | Category                       | Estimate | Daily | Actual | Diff |
 |:-------------------------------|:---------|:------|:-------|:-----|
@@ -148,6 +152,12 @@ def _parse_args():
     parser.add_argument(
         '-n', '--num_days', type=int,
         help='Number of days in the sprint', required=True)
+    parser.add_argument(
+        '-1', '--week1_committed', type=int,
+        help='Number of hours booked in week 1', required=True)
+    parser.add_argument(
+        '-2', '--week2_committed', type=int,
+        help='Number of hours booked in week 2', required=True)
     args = parser.parse_args()
     return args
 
@@ -184,8 +194,9 @@ def main():
     productive_hours_actual, story_points_actual = fetch_prior_values(args)
     # Set up estimates for hours and intervals
     sprint_hours = args.num_days * 8
-    w1_committed = 0
-    w2_committed = 0
+    w1_committed = args.week1_committed
+    w2_committed = args.week2_committed
+    interval_total = args.num_days * 16
     sprint_committed_hours = sprint_hours - w1_committed - w2_committed
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
@@ -207,7 +218,9 @@ def main():
             sprint_hours=sprint_hours,
             w1_committed=w1_committed,
             w2_committed=w2_committed,
-            sprint_committed_hours=sprint_committed_hours
+            sprint_committed_hours=sprint_committed_hours,
+            num_days=args.num_days,
+            interval_total=interval_total
             )
         sprint_handle.write(sprint_text)
 
