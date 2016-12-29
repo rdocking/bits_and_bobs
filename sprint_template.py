@@ -149,6 +149,20 @@ def _parse_args():
     return args
 
 
+def fetch_prior_values(args):
+    """Fetch prior sprint values from TSV data sheet"""
+    productive_hours_actual = 'NA'
+    story_points_actual = 'NA'
+    with open(args.estimation_data, 'rb') as tsv_input:
+        tsv_reader = csv.DictReader(tsv_input, delimiter='\t')
+        for row in tsv_reader:
+            prior_sprint_num = int(row['sprint_number'])
+            if prior_sprint_num == args.sprint_num - 1:
+                productive_hours_actual = row['productive_hours_actual']
+                story_points_actual = row['story_points_actual']
+    return productive_hours_actual, story_points_actual
+
+
 def main():
     """Main function"""
     # Parse command-line arguments
@@ -163,16 +177,8 @@ def main():
         start_date=start_datetime.date(),
         end_date=end_datetime.date()
     )
-    # Grab values from last sprint
-    productive_hours_actual = 'NA'
-    story_points_actual = 'NA'
-    with open(args.estimation_data, 'rb') as tsv_input:
-        tsv_reader = csv.DictReader(tsv_input, delimiter='\t')
-        for row in tsv_reader:
-            prior_sprint_num = int(row['sprint_number'])
-            if prior_sprint_num == args.sprint_num - 1:
-                productive_hours_actual = row['productive_hours_actual']
-                story_points_actual = row['story_points_actual']
+    # Grab values from last sprint for productive hours and points
+    productive_hours_actual, story_points_actual = fetch_prior_values(args)
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
