@@ -150,6 +150,9 @@ def _parse_args():
         '-e', '--estimation_data', type=str,
         help='Sprint estimation data', required=True)
     parser.add_argument(
+        '-l', '--intervals_data', type=str,
+        help='Sprint intervals data', required=True)
+    parser.add_argument(
         '-n', '--num_days', type=int,
         help='Number of days in the sprint', required=True)
     parser.add_argument(
@@ -211,6 +214,14 @@ def main():
     # Use the dateutil package to calculate 'next Friday'
     start_datetime = parse(args.start_date)
     end_datetime = start_datetime + relativedelta(weekday=FR(+2))
+    w1d2 = start_datetime + relativedelta(weekday=TU(+1))
+    w1d3 = start_datetime + relativedelta(weekday=WE(+1))
+    w1d4 = start_datetime + relativedelta(weekday=TH(+1))
+    w1d5 = start_datetime + relativedelta(weekday=FR(+1))
+    w2d1 = start_datetime + relativedelta(weekday=MO(+2))
+    w2d2 = start_datetime + relativedelta(weekday=TU(+2))
+    w2d3 = start_datetime + relativedelta(weekday=WE(+2))
+    w2d4 = start_datetime + relativedelta(weekday=TH(+2))
     # Set up the sprint file name
     sprint_file_name = 'sprint_{num}_{start_date}-{end_date}.rmd'.format(
         num=args.sprint_num,
@@ -256,16 +267,16 @@ def main():
         sprint_text = SPRINT_TEMPLATE.format(
             sprint_num=args.sprint_num,
             sprint_title=args.sprint_title,
-            start_date=args.start_date,
+            start_date=start_datetime.date(),
             end_date=end_datetime.date(),
-            w1d2=(start_datetime + relativedelta(weekday=TU(+1))).date(),
-            w1d3=(start_datetime + relativedelta(weekday=WE(+1))).date(),
-            w1d4=(start_datetime + relativedelta(weekday=TH(+1))).date(),
-            w1d5=(start_datetime + relativedelta(weekday=FR(+1))).date(),
-            w2d1=(start_datetime + relativedelta(weekday=MO(+2))).date(),
-            w2d2=(start_datetime + relativedelta(weekday=TU(+2))).date(),
-            w2d3=(start_datetime + relativedelta(weekday=WE(+2))).date(),
-            w2d4=(start_datetime + relativedelta(weekday=TH(+2))).date(),
+            w1d2=w1d2.date(),
+            w1d3=w1d3.date(),
+            w1d4=w1d4.date(),
+            w1d5=w1d5.date(),
+            w2d1=w2d1.date(),
+            w2d2=w2d2.date(),
+            w2d3=w2d3.date(),
+            w2d4=w2d4.date(),
             last_sprint_hours=productive_hours_actual,
             last_sprint_points=story_points_actual,
             sprint_hours=sprint_hours,
@@ -292,6 +303,30 @@ def main():
             sum_daily=sum_daily
             )
         sprint_handle.write(sprint_text)
+    # Append new daily interval targets to intervals TSV sheet
+    # TODO - this currently doesn't handle sprints without exactly 10 days
+    sprint_days = [start_datetime, w1d2, w1d3, w1d4, w1d5,
+                   w2d1, w2d2, w2d3, w2d4, end_datetime]
+    ordered_intervals = ["Meta", "Current Analysis", "Current Reading",
+                         "Background Reading", "Meetings and Seminars",
+                         "Informatics Support",
+                         "Scanning, Networking, Browsing"]
+    interval_dict = {
+        "Meta": meta_daily,
+        "Current Analysis": analysis_daily,
+        "Current Reading": reading_daily,
+        "Background Reading": background_daily,
+        "Meetings and Seminars": meetings_daily,
+        "Informatics Support": support_daily,
+        "Scanning, Networking, Browsing": scan_daily
+    }
+    with open(args.intervals_data, 'a') as intervals_handle:
+        for day in sprint_days:
+            for category in ordered_intervals:
+                intervals_handle.write('{day},"{category}",{est},0\n'.format(
+                    day=day.date(),
+                    category=category,
+                    est=interval_dict[category]))
 
 
 if __name__ == '__main__':
