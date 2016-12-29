@@ -8,12 +8,10 @@ Copyright (c) 2016 Canada's Michael Smith Genome Sciences Centre.
 All rights reserved.
 """
 
-import sys
-import os
 import argparse
 from dateutil.parser import parse
-from dateutil.relativedelta import *
-
+from dateutil.relativedelta import relativedelta, MO, TU, WE, TH, FR
+import csv
 
 SPRINT_TEMPLATE = """---
 title: "Sprint {sprint_num}: {sprint_title}"
@@ -46,10 +44,10 @@ bibliography: ../../references/paperpile_export.bib
 
 ### Story Points
 
-|                    | Last Sprint | Estimate                                     | Actual |
-|:-------------------|:------------|:---------------------------------------------|:-------|
-| Meeting-free hours |             | (8.0hrs/day * 10 days) - (meetings in hours) |        |
-| Story points       |             |                                              |        |
+|                    | Last Sprint | Estimate | Actual |
+|:-------------------|:------------|:---------|:-------|
+| Meeting-free hours | {last_sprint_hours}           |          |        |
+| Story points       | {last_sprint_points}           |          |        |
 
 ### Story Points and Intervals
 
@@ -142,7 +140,11 @@ def _parse_args():
         '-d', '--start_date', type=str,
         help='Sprint start date', required=True)
     parser.add_argument(
-        'sprint_title', help='Sprint title')
+        '-t', '--sprint_title', type=str,
+        help='Sprint title', required=True)
+    parser.add_argument(
+        '-e', '--estimation_data', type=str,
+        help='Sprint estimation data', required=True)
     args = parser.parse_args()
     return args
 
@@ -161,6 +163,16 @@ def main():
         start_date=start_datetime.date(),
         end_date=end_datetime.date()
     )
+    # Grab values from last sprint
+    productive_hours_actual = 'NA'
+    story_points_actual = 'NA'
+    with open(args.estimation_data, 'rb') as tsv_input:
+        tsv_reader = csv.DictReader(tsv_input, delimiter='\t')
+        for row in tsv_reader:
+            prior_sprint_num = int(row['sprint_number'])
+            if prior_sprint_num == args.sprint_num - 1:
+                productive_hours_actual = row['productive_hours_actual']
+                story_points_actual = row['story_points_actual']
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
@@ -175,7 +187,9 @@ def main():
             w2d1=(start_datetime + relativedelta(weekday=MO(+2))).date(),
             w2d2=(start_datetime + relativedelta(weekday=TU(+2))).date(),
             w2d3=(start_datetime + relativedelta(weekday=WE(+2))).date(),
-            w2d4=(start_datetime + relativedelta(weekday=TH(+2))).date()
+            w2d4=(start_datetime + relativedelta(weekday=TH(+2))).date(),
+            last_sprint_hours=productive_hours_actual,
+            last_sprint_points=story_points_actual
             )
         sprint_handle.write(sprint_text)
 
