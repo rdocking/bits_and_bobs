@@ -52,9 +52,9 @@ bibliography: ../../references/paperpile_export.bib
 ### Story Points and Intervals
 
 - Estimates:
-    - Week 1: $Xh committed
-    - Week 2: $Yh committed
-    - Estimate of meeting-free hours: 80 - ($X + $Y) = $Zh
+    - Week 1: {w1_committed}h committed
+    - Week 2: {w2_committed}h committed
+    - Estimate of meeting-free hours: {sprint_hours} - ({w1_committed} + {w2_committed}) = {sprint_committed_hours}h
     - Estimated potential points from `sprint_estimation_tables.rmd`
 - Story points assigned at sprint planning meeting:
 - Actual:
@@ -145,6 +145,9 @@ def _parse_args():
     parser.add_argument(
         '-e', '--estimation_data', type=str,
         help='Sprint estimation data', required=True)
+    parser.add_argument(
+        '-n', '--num_days', type=int,
+        help='Number of days in the sprint', required=True)
     args = parser.parse_args()
     return args
 
@@ -179,6 +182,11 @@ def main():
     )
     # Grab values from last sprint for productive hours and points
     productive_hours_actual, story_points_actual = fetch_prior_values(args)
+    # Set up estimates for hours and intervals
+    sprint_hours = args.num_days * 8
+    w1_committed = 0
+    w2_committed = 0
+    sprint_committed_hours = sprint_hours - w1_committed - w2_committed
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
@@ -195,7 +203,11 @@ def main():
             w2d3=(start_datetime + relativedelta(weekday=WE(+2))).date(),
             w2d4=(start_datetime + relativedelta(weekday=TH(+2))).date(),
             last_sprint_hours=productive_hours_actual,
-            last_sprint_points=story_points_actual
+            last_sprint_points=story_points_actual,
+            sprint_hours=sprint_hours,
+            w1_committed=w1_committed,
+            w2_committed=w2_committed,
+            sprint_committed_hours=sprint_committed_hours
             )
         sprint_handle.write(sprint_text)
 
