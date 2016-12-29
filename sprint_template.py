@@ -80,21 +80,21 @@ bibliography: ../../references/paperpile_export.bib
 
 ## Schedule
 
-### Week 1 - YYYY-MM-DD - YYYY-MM-DD
+### Week 1 - {start_date} - {w1d5}
 
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
+- {start_date} -
+- {w1d2} -
+- {w1d3} -
+- {w1d4} -
+- {w1d5} -
 
-### Week 2 - YYYY-MM-DD - YYYY-MM-DD
+### Week 2 - {w2d1} - {end_date}
 
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
-- YYYY-MM-DD -
+- {w2d1} -
+- {w2d2} -
+- {w2d3} -
+- {w2d4} -
+- {end_date} -
 
 ## Progress
 
@@ -166,7 +166,16 @@ def main():
         sprint_text = SPRINT_TEMPLATE.format(
             sprint_num=args.sprint_num,
             sprint_title=args.sprint_title,
-            start_date=args.start_date
+            start_date=args.start_date,
+            end_date=end_datetime.date(),
+            w1d2=(start_datetime + relativedelta(weekday=TU(+1))).date(),
+            w1d3=(start_datetime + relativedelta(weekday=WE(+1))).date(),
+            w1d4=(start_datetime + relativedelta(weekday=TH(+1))).date(),
+            w1d5=(start_datetime + relativedelta(weekday=FR(+1))).date(),
+            w2d1=(start_datetime + relativedelta(weekday=MO(+2))).date(),
+            w2d2=(start_datetime + relativedelta(weekday=TU(+2))).date(),
+            w2d3=(start_datetime + relativedelta(weekday=WE(+2))).date(),
+            w2d4=(start_datetime + relativedelta(weekday=TH(+2))).date()
             )
         sprint_handle.write(sprint_text)
 
