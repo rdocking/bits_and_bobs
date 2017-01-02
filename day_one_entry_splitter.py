@@ -62,13 +62,17 @@ def main():
                     month=entry_iso_month,
                     day=entry_iso_day)
                 pathed_entry_file = os.path.join(entry_dir, entry_file)
-                print pathed_entry_file
                 # If the directory doesn't exist, make it
                 if not os.path.exists(entry_dir):
                     print "Making directory", entry_dir
                     os.makedirs(entry_dir)
                 entry_handle = open(pathed_entry_file, 'wb')
                 current_entry_date = entry_date
+            # If there's a Photo line, replace it with an image link
+            if "Photo:" in line:
+                # Photo:	2014-10-14.jpg
+                c = line.split()
+                line = "\n![]({image})\n".format(image=c[1])
             # Write the new line to the current entry
             entry_handle.write(line)
     entry_handle.close()
