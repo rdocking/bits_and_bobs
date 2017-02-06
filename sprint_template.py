@@ -261,6 +261,7 @@ def main():
                  support_daily + scan_daily)
     # Sanity-check against the expected intervals total
     if sum_intervals != interval_total:
+        print "Sum: ", sum_intervals, " Expected: ", interval_total
         print "Interval data mismatch! Check the sums and try again!"
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
