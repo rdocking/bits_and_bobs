@@ -133,6 +133,26 @@ bibliography: ../../references/paperpile_export.bib
 ## References
 """
 
+FOLLOWUP_TEMPLATE = """---
+title: "Sprint {sprint_num}"
+author: "Rod Docking"
+date: '{end_date}'
+csl: ../../references/csl/apa.csl
+bibliography: ../../references/paperpile_export.bib
+---
+
+## Summary
+
+## Paper- and Proposal-related Tasks
+
+## Upcoming Analysis and Collaborations
+
+## Committee Meeting and Comprehensive Exam
+
+## CCG and Other Support Work
+
+"""
+
 
 def _parse_args():
     parser = argparse.ArgumentParser(
@@ -328,6 +348,14 @@ def main():
                     day=day.date(),
                     category=category,
                     est=interval_dict[category]))
+    # Set up the sprint followup document
+    sprint_followup_name = 'sprint_{num}_followup.rmd'.format(
+        num=args.sprint_num)
+    with open(sprint_followup_name, 'w') as intervals_handle:
+        intervals_handle.write(FOLLOWUP_TEMPLATE.format(
+            sprint_num=args.sprint_num,
+            end_date=end_datetime.date()
+        ))
 
 
 if __name__ == '__main__':
