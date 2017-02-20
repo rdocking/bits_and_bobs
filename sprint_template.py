@@ -55,10 +55,12 @@ bibliography: ../../references/paperpile_export.bib
 
 - Week 1: {w1_committed}h committed
 - Week 2: {w2_committed}h committed
-- Estimate of meeting-free hours: {sprint_hours} - ({w1_committed} + {w2_committed}) = {sprint_committed_hours}h
+- Estimate of meeting-free hours: {sprint_hours} - ({w1_committed} + \
+ {w2_committed}) = {sprint_committed_hours}h
 - Estimated potential points from `sprint_estimation_tables.rmd`
 - Story points assigned at sprint planning meeting:
-- Intervals Goal: (16 * number of working days) = 16 * {num_days} = {interval_total}
+- Intervals Goal: (16 * number of working days) = 16 * {num_days} = \
+ {interval_total}
 
 #### Actual
 
@@ -261,19 +263,19 @@ def main():
     # For the interval estimates, start with the categories that are known in
     #  advance
     meta = args.meta
-    meta_daily = meta / args.num_days
+    meta_daily = round(meta / args.num_days, 2)
     analysis = args.current_analysis
-    analysis_daily = analysis / args.num_days
+    analysis_daily = round(analysis / args.num_days, 2)
     reading = args.current_reading
-    reading_daily = reading / args.num_days
+    reading_daily = round(reading / args.num_days, 2)
     background = args.background_reading
-    background_daily = background / args.num_days
+    background_daily = round(background / args.num_days, 2)
     meetings = args.meetings
-    meetings_daily = meetings / args.num_days
+    meetings_daily = round(meetings / args.num_days, 2)
     support = args.support
-    support_daily = support / args.num_days
+    support_daily = round(support / args.num_days, 2)
     scan = args.scan
-    scan_daily = scan / args.num_days
+    scan_daily = round(scan / args.num_days, 2)
     sum_intervals = (meta + analysis + reading + background +
                      meetings + support + scan)
     sum_daily = (meta_daily + analysis_daily + reading_daily +
@@ -325,7 +327,6 @@ def main():
             )
         sprint_handle.write(sprint_text)
     # Append new daily interval targets to intervals TSV sheet
-    # TODO - this currently doesn't handle sprints without exactly 10 days
     sprint_days = [start_datetime, w1d2, w1d3, w1d4, w1d5,
                    w2d1, w2d2, w2d3, w2d4, end_datetime]
     ordered_intervals = ["Meta", "Current Analysis", "Current Reading",
