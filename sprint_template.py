@@ -9,9 +9,9 @@ All rights reserved.
 """
 
 import argparse
+import csv
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta, MO, TU, WE, TH, FR
-import csv
 
 SPRINT_TEMPLATE = """---
 title: "Sprint {sprint_num}: {sprint_title}"
@@ -81,6 +81,10 @@ bibliography: ../../references/paperpile_export.bib
 | Informatics Support            | {support} | {support_daily} | | |
 | Scanning, Networking, Browsing | {scan} | {scan_daily} | | |
 | **SUM**                        | {sum_intervals} | {sum_daily} | | |
+
+| Category                       | Estimate | Daily | Actual | Diff |
+|:-------------------------------|:---------|:------|:-------|:-----|
+| Deep Work                      | {deep} | {deep_daily} |   |      | 
 
 ## Schedule
 
@@ -210,6 +214,10 @@ def _parse_args():
         '-a', '--scan', type=float,
         help='Number of Scan intervals for the sprint',
         required=True)
+    parser.add_argument(
+        '-w', '--deep', type=float,
+        help='Number of Deep Work intervals for the sprint',
+        required=True)
     args = parser.parse_args()
     return args
 
@@ -281,6 +289,8 @@ def main():
     sum_daily = (meta_daily + analysis_daily + reading_daily +
                  background_daily + meetings_daily +
                  support_daily + scan_daily)
+    deep = args.deep
+    deep_daily = round(deep / args.num_days, 2)           
     # Sanity-check against the expected intervals total
     if sum_intervals != interval_total:
         print "Sum: ", sum_intervals, " Expected: ", interval_total
@@ -323,7 +333,9 @@ def main():
             scan=scan,
             scan_daily=scan_daily,
             sum_intervals=sum_intervals,
-            sum_daily=sum_daily
+            sum_daily=sum_daily,
+            deep=deep,
+            deep_daily=deep_daily
             )
         sprint_handle.write(sprint_text)
     # Append new daily interval targets to intervals TSV sheet
@@ -332,7 +344,8 @@ def main():
     ordered_intervals = ["Meta", "Current Analysis", "Current Reading",
                          "Background Reading", "Meetings and Seminars",
                          "Informatics Support",
-                         "Scanning, Networking, Browsing"]
+                         "Scanning, Networking, Browsing",
+                         "Deep Work"]
     interval_dict = {
         "Meta": meta_daily,
         "Current Analysis": analysis_daily,
@@ -340,7 +353,8 @@ def main():
         "Background Reading": background_daily,
         "Meetings and Seminars": meetings_daily,
         "Informatics Support": support_daily,
-        "Scanning, Networking, Browsing": scan_daily
+        "Scanning, Networking, Browsing": scan_daily,
+        "Deep Work": deep_daily
     }
     with open(args.intervals_data, 'w') as intervals_handle:
         for day in sprint_days:
