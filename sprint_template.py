@@ -36,7 +36,7 @@ bibliography: ../../references/paperpile_export.bib
     - Reading task (**NUM x CATEGORY**)
 - Meta and Admin:
     - Admin task (**NUM x CATEGORY**)
-- Support:
+- Support and Collaborations:
     - Support task (**NUM x CATEGORY**)
 
 
