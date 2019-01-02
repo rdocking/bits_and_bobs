@@ -44,7 +44,7 @@ bibliography: ../../references/paperpile_export.bib
 
 ### Story Points
 
-|                    | Last Sprint | Estimate | Actual |
+| Category           | Last Sprint | Estimate | Actual |
 |:-------------------|:------------|:---------|:-------|
 | Meeting-free hours | {last_sprint_hours}           |          |        |
 | Story points       | {last_sprint_points}           |          |        |
@@ -59,7 +59,7 @@ bibliography: ../../references/paperpile_export.bib
  {w2_committed}) = {sprint_committed_hours}h
 - Estimated potential points from `sprint_estimation_tables.rmd`
 - Story points assigned at sprint planning meeting:
-- Intervals Goal: (16 * number of working days) = 16 * {num_days} = \
+- Intervals Goal: (intervals_per_day * number of working days) = {intervals_per_day} * {num_days} = \
  {interval_total}
 
 #### Actual
@@ -218,6 +218,10 @@ def _parse_args():
         '-w', '--deep', type=float,
         help='Number of Deep Work intervals for the sprint',
         required=True)
+    parser.add_argument(
+        '-p', '--intervals_per_day', type=float,
+        help='Target number of intervals per day',
+        required=True)
     args = parser.parse_args()
     return args
 
@@ -240,6 +244,7 @@ def main():
     """Main function"""
     # Parse command-line arguments
     args = _parse_args()
+    
     # Calculate sprint end dates
     # Use the dateutil package to calculate 'next Friday'
     start_datetime = parse(args.start_date)
@@ -252,22 +257,26 @@ def main():
     w2d2 = start_datetime + relativedelta(weekday=TU(+2))
     w2d3 = start_datetime + relativedelta(weekday=WE(+2))
     w2d4 = start_datetime + relativedelta(weekday=TH(+2))
+    
     # Set up the sprint file name
     sprint_file_name = 'sprint_{num}_{start_date}-{end_date}.rmd'.format(
         num=args.sprint_num,
         start_date=start_datetime.date(),
         end_date=end_datetime.date()
     )
+    
     # Grab values from last sprint for productive hours and points
     productive_hours_actual, story_points_actual = fetch_prior_values(args)
+    
     # Set up estimates for hours and intervals
     # These first estimates are the hard commitments - numbers of days
     #  and hours already booked
-    sprint_hours = args.num_days * 8
+    sprint_hours = args.num_days * args.intervals_per_day / 2
     w1_committed = args.week1_committed
     w2_committed = args.week2_committed
-    interval_total = args.num_days * 16
+    interval_total = args.num_days * args.intervals_per_day
     sprint_committed_hours = sprint_hours - w1_committed - w2_committed
+    
     # For the interval estimates, start with the categories that are known in
     #  advance
     meta = args.meta
@@ -291,10 +300,12 @@ def main():
                  support_daily + scan_daily)
     deep = args.deep
     deep_daily = round(deep / args.num_days, 2)           
+    
     # Sanity-check against the expected intervals total
     if sum_intervals != interval_total:
         print "Sum: ", sum_intervals, " Expected: ", interval_total
         print "Interval data mismatch! Check the sums and try again!"
+    
     # Write out the template with new values filled in
     with open(sprint_file_name, 'w') as sprint_handle:
         sprint_text = SPRINT_TEMPLATE.format(
@@ -335,9 +346,11 @@ def main():
             sum_intervals=sum_intervals,
             sum_daily=sum_daily,
             deep=deep,
-            deep_daily=deep_daily
+            deep_daily=deep_daily,
+            intervals_per_day=args.intervals_per_day
             )
         sprint_handle.write(sprint_text)
+        
     # Append new daily interval targets to intervals TSV sheet
     sprint_days = [start_datetime, w1d2, w1d3, w1d4, w1d5,
                    w2d1, w2d2, w2d3, w2d4, end_datetime]
@@ -364,13 +377,13 @@ def main():
                     category=category,
                     est=interval_dict[category]))
     # Set up the sprint followup document
-    sprint_followup_name = 'sprint_{num}_followup.rmd'.format(
-        num=args.sprint_num)
-    with open(sprint_followup_name, 'w') as intervals_handle:
-        intervals_handle.write(FOLLOWUP_TEMPLATE.format(
-            sprint_num=args.sprint_num,
-            end_date=end_datetime.date()
-        ))
+    #sprint_followup_name = 'sprint_{num}_followup.rmd'.format(
+    #    num=args.sprint_num)
+    #with open(sprint_followup_name, 'w') as intervals_handle:
+    #    intervals_handle.write(FOLLOWUP_TEMPLATE.format(
+    #        sprint_num=args.sprint_num,
+    #        end_date=end_datetime.date()
+    #    ))
 
 
 if __name__ == '__main__':
