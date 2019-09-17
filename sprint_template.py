@@ -39,6 +39,55 @@ bibliography: ../../references/paperpile_export.bib
 - Support and Collaborations:
     - Support task (**NUM x CATEGORY**)
 
+#### Intervals
+
+| Category                       | Estimate | Daily | Actual | Diff |
+|:-------------------------------|:---------|:------|:-------|:-----|
+| Meta                           | {meta} | {meta_daily} |    |      |
+| Current Analysis               | {analysis} | {analysis_daily} | | |
+| Current Reading                | {reading} | {reading_daily} | | |
+| Background Reading             | {background} | {background_daily} | | |
+| Meetings and Seminars          | {meetings} | {meetings_daily} | | |
+| Informatics Support            | {support} | {support_daily} | | |
+| Scanning, Networking, Browsing | {scan} | {scan_daily} | | |
+| **SUM**                        | {sum_intervals} | {sum_daily} | | |
+
+| Category                       | Estimate | Daily | Actual | Diff |
+|:-------------------------------|:---------|:------|:-------|:-----|
+| Deep Work                      | {deep} | {deep_daily} |   |      | 
+
+## Retrospective
+
+- Retrospective thoughts on the sprint
+"""
+
+
+SPRINT_TEMPLATE_OLD = """---
+title: "Sprint {sprint_num}: {sprint_title}"
+author: "Rod Docking"
+date: '{start_date}'
+csl: ../../references/csl/apa.csl
+bibliography: ../../references/paperpile_export.bib
+---
+
+## Current Sprint
+
+- What are the goals for the current sprint?
+- Current analysis:
+    - ✅ Done ticket (**POINTS**)
+    - ⏩ In-progress ticket (**POINTS**)
+    - ◽ Open ticket (**POINTS**)
+- Thesis planning:
+    - Planning task (**NUM x CATEGORY**)
+- Current reading:
+    - Reading task (**NUM x CATEGORY**)
+- Background reading:
+    - Reading task (**NUM x CATEGORY**)
+- Meta and Admin:
+    - Admin task (**NUM x CATEGORY**)
+- Support and Collaborations:
+    - Support task (**NUM x CATEGORY**)
+
 
 ## Agile Metrics Tracking
 
